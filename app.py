@@ -57,18 +57,21 @@ for idx, item in enumerate(total_items):
 
 st.divider()
 
-# --- 수정된 기능: 선택형 카메라 활성화 ---
+# --- 수정된 기능: 후면 카메라 권장 및 선택형 활성화 ---
 col_img, col_txt = st.columns([1, 1])
 
 with col_img:
     st.header("📸 현장 사진 첨부")
     
-    # 1. 체크박스나 버튼으로 카메라 활성화 여부 결정
-    show_camera = st.checkbox("📷 사진 촬영 기능 켜기")
+    # 안내 문구 추가
+    st.caption("💡 스마트폰 접속 시 '후면 카메라'를 사용해 주세요.")
+    
+    show_camera = st.checkbox("📷 사진 촬영 기능 켜기 (후면 권장)")
     
     img_file = None
     if show_camera:
-        # 체크박스를 눌렀을 때만 카메라 입력창이 나타납니다.
+        # Streamlit의 camera_input은 브라우저의 마지막 설정을 기억하는 경우가 많습니다.
+        # 아래는 표준 입력 방식이며, 모바일 브라우저에서 '카메라 전환' 버튼이 보일 것입니다.
         img_file = st.camera_input("불량 항목 사진 촬영")
     else:
         st.write("사진 촬영이 필요하면 위 체크박스를 선택하세요.")
@@ -77,7 +80,7 @@ with col_txt:
     st.header("📝 지적 내역 및 비고")
     issue_detail = st.text_area(
         "상세 불량 사유를 입력하세요", 
-        placeholder="예: 서측 복도 소화기 압력 저하 등",
+        placeholder="예: 3번 소화기 압력 저하 등",
         height=150
     )
 
