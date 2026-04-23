@@ -57,19 +57,27 @@ for idx, item in enumerate(total_items):
 
 st.divider()
 
-# --- 추가된 기능: 사진 촬영 및 지적 내역 ---
+# --- 수정된 기능: 선택형 카메라 활성화 ---
 col_img, col_txt = st.columns([1, 1])
 
 with col_img:
     st.header("📸 현장 사진 첨부")
-    # 스마트폰으로 접속 시 바로 카메라가 실행됩니다.
-    img_file = st.camera_input("불량 항목 사진 촬영")
+    
+    # 1. 체크박스나 버튼으로 카메라 활성화 여부 결정
+    show_camera = st.checkbox("📷 사진 촬영 기능 켜기")
+    
+    img_file = None
+    if show_camera:
+        # 체크박스를 눌렀을 때만 카메라 입력창이 나타납니다.
+        img_file = st.camera_input("불량 항목 사진 촬영")
+    else:
+        st.write("사진 촬영이 필요하면 위 체크박스를 선택하세요.")
 
 with col_txt:
     st.header("📝 지적 내역 및 비고")
     issue_detail = st.text_area(
         "상세 불량 사유를 입력하세요", 
-        placeholder="예: 3번 소화기 압력 저하 등",
+        placeholder="예: 서측 복도 소화기 압력 저하 등",
         height=150
     )
 
