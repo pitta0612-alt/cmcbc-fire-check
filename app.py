@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 from openpyxl import load_workbook, Workbook
 
-# 엑셀 파일 이름 설정
+# 엑셀 파일 이름 설정 (로컬 백업용)
 EXCEL_FILE = "fire_inspection_log.xlsx"
 
 # 1. 건물 및 층수 데이터 설정
@@ -27,7 +27,7 @@ total_items = [
 
 # 앱 설정
 st.set_page_config(page_title="부천성모병원 소방점검", layout="wide")
-st.title("🏥 소방시설 전 항목 점검 시스템 (V3.2)")
+st.title("🏥 소방시설 정밀 점검 시스템 (V4.0)")
 
 # 사이드바 - 점검 기본 정보
 st.sidebar.header("📋 점검 기본 정보")
@@ -44,12 +44,10 @@ st.header(f"🔍 {full_location} 시설물 상태 체크")
 st.info("각 설비의 상태를 체크해 주세요. 기본값은 '양호'입니다.")
 
 results = {}
-# 3개의 열로 분할하여 배치
 cols = st.columns(3)
 
 for idx, item in enumerate(total_items):
     with cols[idx % 3]:
-        # 라디오 버튼 형식이 가장 빠르고 정확함
         results[item] = st.radio(
             f"**{item}**",
             ["양호", "불량"],
@@ -59,13 +57,27 @@ for idx, item in enumerate(total_items):
 
 st.divider()
 
-# 지적 내역 입력
-st.header("📝 지적 내역 및 비고")
-issue_detail = st.text_area("상세 불량 사유를 입력하세요 (없으면 공란)", placeholder="예: 3번 소화기 압력 저하 등")
+# --- 추가된 기능: 사진 촬영 및 지적 내역 ---
+col_img, col_txt = st.columns([1, 1])
+
+with col_img:
+    st.header("📸 현장 사진 첨부")
+    # 스마트폰으로 접속 시 바로 카메라가 실행됩니다.
+    img_file = st.camera_input("불량 항목 사진 촬영")
+
+with col_txt:
+    st.header("📝 지적 내역 및 비고")
+    issue_detail = st.text_area(
+        "상세 불량 사유를 입력하세요", 
+        placeholder="예: 3번 소화기 압력 저하 등",
+        height=150
+    )
+
+st.divider()
 
 # 저장 버튼
-if st.button("📊 점검 결과 엑셀 저장", use_container_width=True):
-    # 저장할 데이터 구조 생성
+if st.button("📊 점검 결과 저장 및 데이터 전송", use_container_width=True):
+    # 저장 데이터 구성
     new_data = {
         "점검일자": check_date.strftime("%Y-%m-%d"),
         "점검자": inspector,
@@ -73,18 +85,25 @@ if st.button("📊 점검 결과 엑셀 저장", use_container_width=True):
     }
     new_data.update(results)
     new_data["지적내역"] = issue_detail
+    # 사진 여부 기록 (나중에 사진을 구글 드라이브 등에 올리는 로직을 위해)
+    new_data["사진첨부"] = "Y" if img_file else "N"
     
-    # 엑셀 파일 처리 로직
+    # 1. 로컬 엑셀 저장 (백업용)
     if not os.path.exists(EXCEL_FILE):
         wb = Workbook()
         ws = wb.active
-        ws.append(list(new_data.keys())) # 헤더 생성
+        ws.append(list(new_data.keys()))
     else:
         wb = load_workbook(EXCEL_FILE)
         ws = wb.active
 
-    ws.append(list(new_data.values())) # 데이터 추가
+    ws.append(list(new_data.values()))
     wb.save(EXCEL_FILE)
     
-    st.success(f"✅ {full_location} 점검 데이터가 성공적으로 저장되었습니다!")
+    # 2. 구글 시트 연동 안내 (다음 단계)
+    st.success(f"✅ {full_location} 점검 데이터가 로컬에 저장되었습니다!")
+    if img_file:
+        st.write("📷 사진이 함께 캡처되었습니다.")
+    
+    st.warning("⚠️ 외부에서 접속 중이라면 현재 데이터는 서버 임시 폴더에 저장됩니다. 안전한 보관을 위해 구글 시트 연동을 완료해 주세요.")
     st.balloons()
