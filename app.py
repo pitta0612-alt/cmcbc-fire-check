@@ -36,9 +36,9 @@ try:
     col_logo, col_title = st.columns([1, 6])
     
     with col_logo:
-        st.image(logo_img, width=100)
+        st.image(logo_img, width=200)
     with col_title:
-        st.markdown("<h1 style='margin-top: 15px;'>소방시설 정밀 점검 시스템 (V4.2)</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='margin-top: 15px;'>소방시설 점검 기록 시스템 (V4.2)</h1>", unsafe_allow_html=True)
 except Exception:
     # 이미지 로딩 실패 시 기존 제목 표시
     st.title("🏥 소방시설 정밀 점검 시스템 (V4.2)")
