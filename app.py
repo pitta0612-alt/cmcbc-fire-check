@@ -1,91 +1,49 @@
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 import os
+from openpyxl import load_workbook, Workbook
+from PIL import Image
 import gspread
 from google.oauth2.service_account import Credentials
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-import io
 
-# [설정]
+# 엑셀 파일 이름 설정 (로컬 백업용)
+EXCEL_FILE = "fire_inspection_log.xlsx"
+
+# 구글 스프레드시트 이름
 SHEET_NAME = "부천성모병원_소방점검_데이터"
-FOLDER_ID = "1HHGdjoQFtI2Z1LbLpXh1cF8pz6-gQHir"
 
-def get_google_creds():
-    # 새로 발급받으신 키 원본을 가장 안전한 형태로 보존합니다.
-    # 아래 문자열은 절대로 수동으로 수정하지 마세요.
-    raw_private_key = (
-        "-----BEGIN PRIVATE KEY-----\n"
-        "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDTCcDPRBVAkK3x\n"
-        "du/xc21oJZhdJQvcdLywzLg50l5yv0iATK5+XFrp+5ZLaGFLKRVXARhkok9sd1az\n"
-        "uycJHUh7Uh7tvTgmuwSAJyh3oThwtiuTcUcXGQcWLcfOzTj6E5EUsIm0JihICDbb\n"
-        "grDaD1n7pgQP4aIVCUpCQa/kyp77v4iC8os7N1QNtM2Erx/9JuWCWUMkumKPU/aV\n"
-        "G1lbSnpnXmz/Jur6JtqEr1y9w1apMLu7izGo75DC29NwuZryY5OnSXef80549K+7\n"
-        "vyWtmKmjOYPzQrjyC0kOmWcIzu8ZgZHdRlKJStmoYONN9EnP4ia8DmNRz8JQmRtM\n"
-        "OMTLt7hzAgMBAAECggEAIMfL4xtfC7jiyUuME3QLrgOM9Qbwno1O0/hGCMvpr3w7\n"
-        "4vCbosrDX8NHF1kpfQxuy/rCaGX33VAfhRUl3US8V1TXCLRSw7KwDRydV2ZmXHJH\n"
-        "jC7/zRGDqB5zV2b0RJAD10lhZ7y3lrzD506XxuoJ3vds0RoKBvzQQ+ttICZDEgpo\n"
-        "AE8ozjIKim4vns6BzqqoVkQwcfTtk8VEEmtOVtO1UAG2nycq5lkximFxqXcnbCtk\n"
-        "nVkZRRYZDjBAoBjB543SPQn7TCm51RgD61c8mJoXrn5OLWJpHItEyR51UIrVpXSc\n"
-        "BaNTvVP+Nd1nR1L1Kq6dqVVtkz2V7e+7Yfm0YVy42QKBgQD2+tPMzpoGs8P3Symc\n"
-        "v04n2srl/+ayTNo9Hhgnr6EFwOmc916YlmNE5tl9umPJSONARxFctus0bVciIilQ\n"
-        "LQkYaiqPJUBrJzjeiCzWvUR4C+i8HcQ63WYFvzshWI7+mMJUIdEhfZjF4yZjR6z1\n"
-        "jVzhLarGF9lVHIAqeOlTgFy2hwKBgQDCe1+LzwtpiyHPiRsDq5VM+WkYqGTygTn8\n"
-        "M3QNzHEg0KWvg2zGMxQPV9/z4EUsFi2h8nnSnQUxXVp8VyoTRbAKqCam5ffB78jQ\n"
-        "93vL3Ifl5sZp8/KL+4uPXszuqZa109D4+4wVstsbK3CDCzY/WSuDszlwoSamLcYE\n"
-        "NhdUR4B2mQKBgDq04Id8TIxvSpOLoDaMGq3KihQlwdZ8Ahwo/SDh1GqjsmQHQMsQ\n"
-        "ZERKg0Qpe/KqiqoKuovJRxtNKjsI170hF1pgUgF4n1lZF2F+CPp6Pr4yRn4ArVY4\n"
-        "rjmLfSit/j9yXC7XYviM/DV9ivBqZyhvE7bKvh8cKCLdBXITD5MzndYdAoGBAJmi\n"
-        "VKxhdyZ9XsxQByMzHNKeBMQR4w0fwOrWystLweKmcPzh2cAJAcPNK4HAnWRicNIK\n"
-        "dupGWJ/Sm3S2duqalqMUitQ1vy9ZeU568zTslf6r+/ofWG/02x77SPEQz5n8Jo1K\n"
-        "SjOqAyTHgC5FYSlSC+oSX0H2TE3iwxb4lB1kDruhAoGBAJK5VV/SYvWHVexDUEIn\n"
-        "6D5Low7Rz4Kk39aG6pKTULCkPXu50Jd8SNXKbtNr1gGHkL/TSDB5pKE8Uz6j+ZSY\n"
-        "69VEWnjBhFkxxMvJ3TVad6cEgMDayz3+SwwigqOFKdVYX1EOsiQiucxG6iAd9TmD\n"
-        "ube4pEoz4ArnJipRo5SZWw80\n"
-        "-----END PRIVATE KEY-----\n"
-    )
-    
-    info = {
-        "type": "service_account",
-        "project_id": "round-booking-494300-s3",
-        "private_key_id": "717037f3d1302a12c343e15cf9a0516cfcaea968",
-        "private_key": raw_private_key,
-        "client_email": "id-298@round-booking-494300-s3.iam.gserviceaccount.com",
-        "client_id": "114249893845931311645",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-298%40round-booking-494300-s3.iam.gserviceaccount.com"
-    }
-    
-    return Credentials.from_service_account_info(info, scopes=[
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive"
-    ])
-
-def upload_to_drive(file_data, file_name):
-    try:
-        service = build('drive', 'v3', credentials=get_google_creds())
-        file_metadata = {'name': file_name, 'parents': [FOLDER_ID]}
-        media = MediaIoBaseUpload(io.BytesIO(file_data), mimetype='image/jpeg')
-        file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        file_id = file.get('id')
-        service.permissions().create(fileId=file_id, body={'type': 'anyone', 'role': 'reader'}).execute()
-        return f"https://drive.google.com/thumbnail?id={file_id}&sz=w1000"
-    except Exception as e:
-        st.error(f"드라이브 업로드 오류: {e}")
-        return None
-
+# 구글 시트 연결 함수 (성공했던 V5.8 방식 + 신규 키 적용)
 def connect_google_sheet():
     try:
-        client = gspread.authorize(get_google_creds())
+        # 새로 발급받으신 키를 한 줄로 정리했습니다.
+        one_line_key = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDTCcDPRBVAkK3x\ndu/xc21oJZhdJQvcdLywzLg50l5yv0iATK5+XFrp+5ZLaGFLKRVXARhkok9sd1az\nuycJHUh7Uh7tvTgmuwSAJyh3oThwtiuTcUcXGQcWLcfOzTj6E5EUsIm0JihICDbb\ngrDaD1n7pgQP4aIVCUpCQa/kyp77v4iC8os7N1QNtM2Erx/9JuWCWUMkumKPU/aV\nG1lbSnpnXmz/Jur6JtqEr1y9w1apMLu7izGo75DC29NwuZryY5OnSXef80549K+7\nvyWtmKmjOYPzQrjyC0kOmWcIzu8ZgZHdRlKJStmoYONN9EnP4ia8DmNRz8JQmRtM\nOMTLt7hzAgMBAAECggEAIMfL4xtfC7jiyUuME3QLrgOM9Qbwno1O0/hGCMvpr3w7\n4vCbosrDX8NHF1kpfQxuy/rCaGX33VAfhRUl3US8V1TXCLRSw7KwDRydV2ZmXHJH\njC7/zRGDqB5zV2b0RJAD10lhZ7y3lrzD506XxuoJ3vds0RoKBvzQQ+ttICZDEgpo\nAE8ozjIKim4vns6BzqqoVkQwcfTtk8VEEmtOVtO1UAG2nycq5lkximFxqXcnbCtk\nnVkZRRYZDjBAoBjB543SPQn7TCm51RgD61c8mJoXrn5OLWJpHItEyR51UIrVpXSc\nBaNTvVP+Nd1nR1L1Kq6dqVVtkz2V7e+7Yfm0YVy42QKBgQD2+tPMzpoGs8P3Symc\nv04n2srl/+ayTNo9Hhgnr6EFwOmc916YlmNE5tl9umPJSONARxFctus0bVciIilQ\nLQkYaiqPJUBrJzjeiCzWvUR4C+i8HcQ63WYFvzshWI7+mMJUIdEhfZjF4yZjR6z1\njVzhLarGF9lVHIAqeOlTgFy2hwKBgQDCe1+LzwtpiyHPiRsDq5VM+WkYqGTygTn8\nM3QNzHEg0KWvg2zGMxQPV9/z4EUsFi2h8nnSnQUxXVp8VyoTRbAKqCam5ffB78jQ\n93vL3Ifl5sZp8/KL+4uPXszuqZa109D4+4wVstsbK3CDCzY/WSuDszlwoSamLcYE\nNhdUR4B2mQKBgDq04Id8TIxvSpOLoDaMGq3KihQlwdZ8Ahwo/SDh1GqjsmQHQMsQ\nZERKg0Qpe/KqiqoKuovJRxtNKjsI170hF1pgUgF4n1lZF2F+CPp6Pr4yRn4ArVY4\nrjmLfSit/j9yXC7XYviM/DV9ivBqZyhvE7bKvh8cKCLdBXITD5MzndYdAoGBAJmi\nVKxhdyZ9XsxQByMzHNKeBMQR4w0fwOrWystLweKmcPzh2cAJAcPNK4HAnWRicNIK\ndupGWJ/Sm3S2duqalqMUitQ1vy9ZeU568zTslf6r+/ofWG/02x77SPEQz5n8Jo1K\nSjOqAyTHgC5FYSlSC+oSX0H2TE3iwxb4lB1kDruhAoGBAJK5VV/SYvWHVexDUEIn\n6D5Low7Rz4Kk39aG6pKTULCkPXu50Jd8SNXKbtNr1gGHkL/TSDB5pKE8Uz6j+ZSY\n69VEWnjBhFkxxMvJ3TVad6cEgMDayz3+SwwigqOFKdVYX1EOsiQiucxG6iAd9TmD\nube4pEoz4ArnJipRo5SZWw80\n-----END PRIVATE KEY-----\n"
+
+        service_account_info = {
+            "type": "service_account",
+            "project_id": "round-booking-494300-s3",
+            "private_key_id": "717037f3d1302a12c343e15cf9a0516cfcaea968",
+            "private_key": one_line_key,
+            "client_email": "id-298@round-booking-494300-s3.iam.gserviceaccount.com",
+            "client_id": "114249893845931311645",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-298%40round-booking-494300-s3.iam.gserviceaccount.com"
+        }
+        
+        credentials = Credentials.from_service_account_info(
+            service_account_info,
+            scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+        )
+        client = gspread.authorize(credentials)
         return client.open(SHEET_NAME).sheet1
     except Exception as e:
-        st.error(f"구글 시트 연결 오류: {e}")
+        st.error(f"구글 시트 연결 중 오류 발생: {e}")
         return None
 
-# --- UI 부분 ---
-st.set_page_config(page_title="부천성모병원 소방점검 V7.0", layout="wide")
+# --- 앱 UI 구성 ---
+st.set_page_config(page_title="부천성모병원 소방점검", layout="wide")
 
 building_data = {
     "성모관(A동)": ["B1F", "1F", "2F", "3F", "4F", "5F", "6F", "7F", "8F", "9F", "10F", "11F"],
@@ -97,15 +55,25 @@ building_data = {
 }
 total_items = ["소화기구", "소화가스구역", "옥내소화전설비", "스프링클러설비", "자탐설비(감지기)", "유도등설비", "비상조명등설비", "완강기", "구조대", "방열복", "공기호흡기", "특피제연설비", "상가제연설비", "비상콘센트", "무선통신설비"]
 
-st.title("🏥 소방시설 점검 시스템")
+# 로고 및 타이틀
+try:
+    logo_img = Image.open("logo.png")
+    col_logo, col_title = st.columns([1, 6])
+    with col_logo: st.image(logo_img, width=150)
+    with col_title: st.markdown("<h1 style='margin-top: 15px;'>소방시설 점검 시스템 (V7.1)</h1>", unsafe_allow_html=True)
+except:
+    st.title("🏥 소방시설 점검 시스템 (V7.1)")
 
+# 점검 정보 입력
 st.sidebar.header("📋 점검 기본 정보")
 inspector = st.sidebar.text_input("점검자", value="이용민")
 check_date = st.sidebar.date_input("점검 일자", datetime.now())
 selected_bldg = st.sidebar.selectbox("건물 선택", list(building_data.keys()))
 selected_floor = st.sidebar.selectbox("층수 선택", building_data[selected_bldg])
+full_location = f"{selected_bldg} {selected_floor}"
 
-st.header(f"🔍 {selected_bldg} {selected_floor} 상태 체크")
+# 점검 항목 체크
+st.header(f"🔍 {full_location} 시설물 상태 체크")
 results = {}
 cols = st.columns(3)
 for idx, item in enumerate(total_items):
@@ -114,30 +82,43 @@ for idx, item in enumerate(total_items):
 
 st.divider()
 
-col_img, col_txt = st.columns([1, 1])
-with col_img:
-    st.header("📸 현장 사진")
-    show_camera = st.checkbox("📷 사진 촬영 기능 켜기")
-    img_file = st.camera_input("점검 사진 촬영") if show_camera else None
-with col_txt:
-    st.header("📝 지적 내역")
-    issue_detail = st.text_area("상세 불량 사유", height=150)
+# 지적 내역 (사진 기능은 제외)
+st.header("📝 지적 내역 및 비고")
+issue_detail = st.text_area("상세 불량 사유 입력", height=150)
 
-if st.button("📊 점검 결과 저장 및 전송", use_container_width=True):
-    image_url = ""
-    if img_file:
-        with st.spinner('사진 업로드 중...'):
-            file_name = f"{check_date.strftime('%Y%m%d')}_{selected_bldg}_{selected_floor}_{inspector}.jpg"
-            image_url = upload_to_drive(img_file.getvalue(), file_name)
+st.divider()
+
+# 저장 로직
+if st.button("📊 점검 결과 저장 및 구글 시트 전송", use_container_width=True):
+    # 전송 데이터 행 구성
+    new_row = [
+        check_date.strftime("%Y-%m-%d"),
+        inspector,
+        full_location
+    ] + list(results.values()) + [issue_detail]
     
-    photo_formula = f'=IMAGE("{image_url}")' if image_url else "사진없음"
-    row_to_add = [check_date.strftime("%Y-%m-%d"), inspector, f"{selected_bldg} {selected_floor}"] + list(results.values()) + [issue_detail, photo_formula]
+    # 1. 로컬 엑셀 저장
+    try:
+        if not os.path.exists(EXCEL_FILE):
+            wb = Workbook()
+            ws = wb.active
+            ws.append(["일자", "점검자", "구역"] + total_items + ["지적내역"])
+        else:
+            wb = load_workbook(EXCEL_FILE)
+            ws = wb.active
+        ws.append(new_row)
+        wb.save(EXCEL_FILE)
+    except:
+        pass
 
+    # 2. 구글 시트 전송
     sheet = connect_google_sheet()
     if sheet:
         try:
-            sheet.append_row(row_to_add, value_input_option='USER_ENTERED')
-            st.success("✅ 구글 시트 전송 성공!")
+            sheet.append_row(new_row)
+            st.success("✅ 구글 스프레드시트에 성공적으로 저장되었습니다!")
             st.balloons()
         except Exception as e:
-            st.error(f"❌ 전송 실패: {e}")
+            st.error(f"구글 시트 저장 실패: {e}")
+    else:
+        st.warning("⚠️ 구글 시트 연결에 실패했습니다. 키 정보나 시트 이름을 확인해 주세요.")
