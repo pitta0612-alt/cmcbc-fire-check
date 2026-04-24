@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "round-booking-494300-s3",
+  "private_key_id": "717037f3d1302a12c343e15cf9a0516cfcaea968",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDTCcDPRBVAkK3x\ndu/xc21oJZhdJQvcdLywzLg50l5yv0iATK5+XFrp+5ZLaGFLKRVXARhkok9sd1az\nuycJHUh7Uh7tvTgmuwSAJyh3oThwtiuTcUcXGQcWLcfOzTj6E5EUsIm0JihICDbb\ngrDaD1n7pgQP4aIVCUpCQa/kyp77v4iC8os7N1QNtM2Erx/9JuWCWUMkumKPU/aV\nG1lbSnpnXmz/Jur6JtqEr1y9w1apMLu7izGo75DC29NwuZryY5OnSXef80549K+7\nvyWtmKmjOYPzQrjyC0kOmWcIzu8ZgZHdRlKJStmoYONN9EnP4ia8DmNRz8JQmRtM\nOMTLt7hzAgMBAAECggEAIMfL4xtfC7jiyUuME3QLrgOM9Qbwno1O0/hGCMvpr3w7\n4vCbosrDX8NHF1kpfQxuy/rCaGX33VAfhRUl3US8V1TXCLRSw7KwDRydV2ZmXHJH\njC7/zRGDqB5zV2b0RJAD10lhZ7y3lrzD506XxuoJ3vds0RoKBvzQQ+ttICZDEgpo\nAE8ozjIKim4vns6BzqqoVkQwcfTtk8VEEmtOVtO1UAG2nycq5lkximFxqXcnbCtk\nnVkZRRYZDjBAoBjB543SPQn7TCm51RgD61c8mJoXrn5OLWJpHItEyR51UIrVpXSc\nBaNTvVP+Nd1nR1L1Kq6dqVVtkz2V7e+7Yfm0YVy42QKBgQD7wut2Uo49rsxfjPaJ\nJ2J0OmBDJVNBB7Wr0YYCynl15Pj6mhBIn/ADwwZ7n3Ov4/La9dpcVqhHg2JgB0Qc\nZXCFw8pHKBlrOMz+vMwo/HfZZ2DkaN3nmbMWZjJOBkh/Ru9AF9XhVu0eALTyPyNs\npdJ5YAmnRewklRJy+niuBIwBKwKBgQDWl1FaSnwlhvRIAMvTCeDrBfrm1n2alPaR\nnx0hKk8PEfj6JmiisQWdbRV+46vTMsxiGvP7tG3msNyzfgMGoT3/8p8yulMO37nA\n4Vzz8/MMyIGdtVtHSgrrPbLnMS/vtEU856tLkmDuFYBqZxUvuZ5WAo2XSNjx7Tn7\nek6q9rSx2QKBgA3x1/Tv0a0c93j7Z9Rk+BEUAqz1bk0Vzjw8GL4i1ONw0VGgIvLC\n2Rp8POmwBUpix9rU70laC2wanOJQxLcF71uZYqTaVb4YoVIixvQmN8U08qr0HAZt\n/vtoobSsqGtUVIAqUdBvbibRRzR7xsyHysaqSR6YwuGr2B/CO9j3q4GNAoGAcidW\n2JBNEG2FH5SE2QQlSQEKYqfxcz0RGZAqH81w9xRZfUDXYsyGryMrTy/v5M7eGMY7\nykdGO3UUQsui8nDuGWzIsWSa8IulNezs1L2OKtuyz+F86CSEQHW26POqi3o7ZtXa\nsr3woFaB1Jh3lcbJavm6tqLC/Zdzw8phdOL+ZqkCgYAlJmg2Qft9SZxd9lOzHwUm\nb/i5NSmM4BGof9OXyq9PaC8gsmh+ZPHH4obo87MXeLPRtYHiSidJ0QQKPx8SKw+b\nmFSY7f1ejYu24NH1klExjlmbyAhz6kzdjp1KaVmP9N8mdHcKWbHFWqV3TbIGlPy8\nUlJbcKuB/UmO4acfSmYOog==\n-----END PRIVATE KEY-----\n",
+  "client_email": "id-298@round-booking-494300-s3.iam.gserviceaccount.com",
+  "client_id": "114249893845931311645",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-298%40round-booking-494300-s3.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
