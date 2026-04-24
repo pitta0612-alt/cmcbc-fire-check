@@ -13,11 +13,11 @@ EXCEL_FILE = "fire_inspection_log.xlsx"
 # 구글 스프레드시트 이름
 SHEET_NAME = "부천성모병원_소방점검_데이터"
 
-# 구글 시트 연결 함수 (성공했던 V5.8 방식 + 신규 키 적용)
+# 구글 시트 연결 함수 (성공했던 V5.8 방식 + 최신 키 적용)
 def connect_google_sheet():
     try:
-        # 새로 발급받으신 키를 한 줄로 정리했습니다.
-        one_line_key = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDTCcDPRBVAkK3x\ndu/xc21oJZhdJQvcdLywzLg50l5yv0iATK5+XFrp+5ZLaGFLKRVXARhkok9sd1az\nuycJHUh7Uh7tvTgmuwSAJyh3oThwtiuTcUcXGQcWLcfOzTj6E5EUsIm0JihICDbb\ngrDaD1n7pgQP4aIVCUpCQa/kyp77v4iC8os7N1QNtM2Erx/9JuWCWUMkumKPU/aV\nG1lbSnpnXmz/Jur6JtqEr1y9w1apMLu7izGo75DC29NwuZryY5OnSXef80549K+7\nvyWtmKmjOYPzQrjyC0kOmWcIzu8ZgZHdRlKJStmoYONN9EnP4ia8DmNRz8JQmRtM\nOMTLt7hzAgMBAAECggEAIMfL4xtfC7jiyUuME3QLrgOM9Qbwno1O0/hGCMvpr3w7\n4vCbosrDX8NHF1kpfQxuy/rCaGX33VAfhRUl3US8V1TXCLRSw7KwDRydV2ZmXHJH\njC7/zRGDqB5zV2b0RJAD10lhZ7y3lrzD506XxuoJ3vds0RoKBvzQQ+ttICZDEgpo\nAE8ozjIKim4vns6BzqqoVkQwcfTtk8VEEmtOVtO1UAG2nycq5lkximFxqXcnbCtk\nnVkZRRYZDjBAoBjB543SPQn7TCm51RgD61c8mJoXrn5OLWJpHItEyR51UIrVpXSc\nBaNTvVP+Nd1nR1L1Kq6dqVVtkz2V7e+7Yfm0YVy42QKBgQD2+tPMzpoGs8P3Symc\nv04n2srl/+ayTNo9Hhgnr6EFwOmc916YlmNE5tl9umPJSONARxFctus0bVciIilQ\nLQkYaiqPJUBrJzjeiCzWvUR4C+i8HcQ63WYFvzshWI7+mMJUIdEhfZjF4yZjR6z1\njVzhLarGF9lVHIAqeOlTgFy2hwKBgQDCe1+LzwtpiyHPiRsDq5VM+WkYqGTygTn8\nM3QNzHEg0KWvg2zGMxQPV9/z4EUsFi2h8nnSnQUxXVp8VyoTRbAKqCam5ffB78jQ\n93vL3Ifl5sZp8/KL+4uPXszuqZa109D4+4wVstsbK3CDCzY/WSuDszlwoSamLcYE\nNhdUR4B2mQKBgDq04Id8TIxvSpOLoDaMGq3KihQlwdZ8Ahwo/SDh1GqjsmQHQMsQ\nZERKg0Qpe/KqiqoKuovJRxtNKjsI170hF1pgUgF4n1lZF2F+CPp6Pr4yRn4ArVY4\nrjmLfSit/j9yXC7XYviM/DV9ivBqZyhvE7bKvh8cKCLdBXITD5MzndYdAoGBAJmi\nVKxhdyZ9XsxQByMzHNKeBMQR4w0fwOrWystLweKmcPzh2cAJAcPNK4HAnWRicNIK\ndupGWJ/Sm3S2duqalqMUitQ1vy9ZeU568zTslf6r+/ofWG/02x77SPEQz5n8Jo1K\nSjOqAyTHgC5FYSlSC+oSX0H2TE3iwxb4lB1kDruhAoGBAJK5VV/SYvWHVexDUEIn\n6D5Low7Rz4Kk39aG6pKTULCkPXu50Jd8SNXKbtNr1gGHkL/TSDB5pKE8Uz6j+ZSY\n69VEWnjBhFkxxMvJ3TVad6cEgMDayz3+SwwigqOFKdVYX1EOsiQiucxG6iAd9TmD\nube4pEoz4ArnJipRo5SZWw80\n-----END PRIVATE KEY-----\n"
+        # 새로 발급받으신 키를 한 줄로 정리하여 데이터 훼손을 방지했습니다.
+        one_line_key = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDTCcDPRBVAkK3x\ndu/xc21oJZhdJQvcdLywzLg50l5yv0iATK5+XFrp+5ZLaGFLKRVXARhkok9sd1az\nuycJHUh7Uh7tvTgmuwSAJyh3oThwtiuTcUcXGQcWLcfOzTj6E5EUsIm0JihICDbb\ngrDaD1n7pgQP4aIVCUpCQa/kyp77v4iC8os7N1QNtM2Erx/9JuWCWUMkumKPU/aV\nG1lbSnpnXmz/Jur6JtqEr1y9w1apMLu7izGo75DC29NwuZryY5OnSXef80549K+7\nvyWtmKmjOYPzQrjyC0kOmWcIzu8ZgZHdRlKJStmoYONN9EnP4ia8DmNRz8JQmRtM\nOMTLt7hzAgMBAAECggEAIMfL4xtfC7jiyUuME3QLrgOM9Qbwno1O0/hGCMvpr3w7\n4vCbosrDX8NHF1kpfQxuy/rCaGX33VAfhRUl3US8V1TXCLRSw7KwDRydV2ZmXHJH\njC7/zRGDqB5zV2b0RJAD10lhZ7y3lrzD506XxuoJ3vds0RoKBvzQQ+ttICZDEgpo\nAE8ozjIKim4vns6BzqqoVkQwcfTtk8VEEmtOVtO1UAG2nycq5lkximFxqXcnbCtk\nnVkZRRYZDjBAoBjB543SPQn7TCm51RgD61c8mJoXrn5OLWJpHItEyR51UIrVpXSc\nBaNTvVP+Nd1nR1L1Kq6dqVVtkz2V7e+7Yfm0YVy42QKBgQD7wut2Uo49rsxfjPaJ\nJ2J0OmBDJVNBB7Wr0YYCynl15Pj6mhBIn/ADwwZ7n3Ov4/La9dpcVqhHg2JgB0Qc\nZXCFw8pHKBlrOMz+vMwo/HfZZ2DkaN3nmbMWZjJOBkh/Ru9AF9XhVu0eALTyPyNs\npdJ5YAmnRewklRJy+niuBIwBKwKBgQDWl1FaSnwlhvRIAMvTCeDrBfrm1n2alPaR\nnx0hKk8PEfj6JmiisQWdbRV+46vTMsxiGvP7tG3msNyzfgMGoT3/8p8yulMO37nA\n4Vzz8/MMyIGdtVtHSgrrPbLnMS/vtEU856tLkmDuFYBqZxUvuZ5WAo2XSNjx7Tn7\nek6q9rSx2QKBgA3x1/Tv0a0c93j7Z9Rk+BEUAqz1bk0Vzjw8GL4i1ONw0VGgIvLC\n2Rp8POmwBUpix9rU70laC2wanOJQxLcF71uZYqTaVb4YoVIixvQmN8U08qr0HAZt\n/vtoobSsqGtUVIAqUdBvbibRRzR7xsyHysaqSR6YwuGr2B/CO9j3q4GNAoGAcidW\n2JBNEG2FH5SE2QQlSQEKYqfxcz0RGZAqH81w9xRZfUDXYsyGryMrTy/v5M7eGMY7\nykdGO3UUQsui8nDuGWzIsWSa8IulNezs1L2OKtuyz+F86CSEQHW26POqi3o7ZtXa\nsr3woFaB1Jh3lcbJavm6tqLC/Zdzw8phdOL+ZqkCgYAlJmg2Qft9SZxd9lOzHwUm\nb/i5NSmM4BGof9OXyq9PaC8gsmh+ZPHH4obo87MXeLPRtYHiSidJ0QQKPx8SKw+b\nmFSY7f1ejYu24NH1klExjlmbyAhz6kzdjp1KaVmP9N8mdHcKWbHFWqV3TbIGlPy8\nUlJbcKuB/UmO4acfSmYOog==\n-----END PRIVATE KEY-----\n"
 
         service_account_info = {
             "type": "service_account",
@@ -60,9 +60,9 @@ try:
     logo_img = Image.open("logo.png")
     col_logo, col_title = st.columns([1, 6])
     with col_logo: st.image(logo_img, width=150)
-    with col_title: st.markdown("<h1 style='margin-top: 15px;'>소방시설 점검 시스템 (V7.1)</h1>", unsafe_allow_html=True)
+    with col_title: st.markdown("<h1 style='margin-top: 15px;'>소방시설 점검 시스템 (V7.2)</h1>", unsafe_allow_html=True)
 except:
-    st.title("🏥 소방시설 점검 시스템 (V7.1)")
+    st.title("🏥 소방시설 점검 시스템 (V7.2)")
 
 # 점검 정보 입력
 st.sidebar.header("📋 점검 기본 정보")
@@ -82,7 +82,7 @@ for idx, item in enumerate(total_items):
 
 st.divider()
 
-# 지적 내역 (사진 기능은 제외)
+# 지적 내역 (사진 기능은 요청에 따라 제외)
 st.header("📝 지적 내역 및 비고")
 issue_detail = st.text_area("상세 불량 사유 입력", height=150)
 
