@@ -35,8 +35,8 @@ total_items = [
 # 구글 시트 연결 함수
 def connect_google_sheet():
     try:
-        # JSON 파일의 내용을 파이썬 딕셔너리 형태로 직접 입력
-        info = {
+        # 이용민 님의 JSON 파일 내용을 파이썬 딕셔너리로 직접 정의
+        service_account_info = {
             "type": "service_account",
             "project_id": "round-booking-494300-s3",
             "private_key_id": "795d62b1e25929e3565c56671d19d8a276e559e3",
@@ -48,13 +48,15 @@ def connect_google_sheet():
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-298%40round-booking-494300-s3.iam.gserviceaccount.com"
         }
+        
         credentials = Credentials.from_service_account_info(
-            info,
+            service_account_info,
             scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
         )
         client = gspread.authorize(credentials)
         return client.open(SHEET_NAME).sheet1
     except Exception as e:
+        # 에러 발생 시 사용자에게 구체적인 원인 출력
         st.error(f"구글 시트 연결 중 오류 발생: {e}")
         return None
 
