@@ -35,43 +35,45 @@ total_items = [
 # 구글 시트 연결 함수
 def connect_google_sheet():
     try:
-        # 줄바꿈 문제를 원천 차단하기 위해 키를 한 줄로 이어 붙였습니다.
-        raw_key = (
-            "-----BEGIN PRIVATE KEY-----\n"
-            "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC7oRsy7oHR0ZmI\n"
-            "43rGFZ7ugH/oFnPRwgzIBHjWZlj6nIaJQ52TiKeL+O13amFKSoVuqfxMJ4guY4xM\n"
-            "9xRfxSkXgRmnJtyfZXMFiVGARIwz3XIHGYHMbVZKCl/8vcx9I7QOiKcA8Vz25JBD\n"
-            "65bPLSbzC1TMb7mV+L71TqpO2bbaIrX9dKdiQDmROO1mTI4gFMJbtJJN1szBvzbI\n"
-            "xLnAr0ALFVhy5rMI2AIQFb4evnhNK+WOnw7hoABudbgqqHA3t8oE5FHyx5nZPeDV\n"
-            "GLYJ4iF5G7CsIZCsriUUvBTu3KP5Cx9gPLrK86SfVuuuV7yQolzDtl0sNnRfGP91\n"
-            "2lkoC1CvAgMBAAECggEADmW2MBTOylpdKnywwuVi0iXzFUyFFknfxYiuUF6pzOUu\n"
-            "NPcxbreJimXkrDPyA4uErJwHkOe8Uo7vSPKb/MiktrnVzZaKTwLaWMjo2OupnyCK\n"
-            "wOe1/DPsRKHXgWMmVKM6NvPzw1CXU8Hwc1MZueEFlZhqKTEY2lysI9JQTYegOSGs\n"
-            "hEvAbw6k4cJ2pGBOXwfJorBSOV2HCHK3oKp/X8J283UT6GBfI76Ckpzp/tKlvtPn\n"
-            "erjxKllDXPX4YLvyzw+ZS5DP5IIEFELJKFIBc9QqXN9poqAMx54MT/UP/FgB4/3y\n"
-            "nbjuMyNICoCdT4ejRsNLtoK6D0SBoxG50IxC47x/rOQKBgQD2+tPMzpoGs8P3Symc\n"
-            "v04n2srl/+ayTNo9Hhgnr6EFwOmc916YlmNE5tl9umPJSONARxFctus0bVciIilQ\n"
-            "LQkYaiqPJUBrJzjeiCzWvUR4C+i8HcQ63WYFvzshWI7+mMJUIdEhfZjF4yZjR6z1\n"
-            "jVzhLarGF9lVHIAqeOlTgFy2hwKBgQDCe1+LzwtpiyHPiRsDq5VM+WkYqGTygTn8\n"
-            "M3QNzHEg0KWvg2zGMxQPV9/z4EUsFi2h8nnSnQUxXVp8VyoTRbAKqCam5ffB78jQ\n"
-            "93vL3Ifl5sZp8/KL+4uPXszuqZa109D4+4wVstsbK3CDCzY/WSuDszlwoSamLcYE\n"
-            "NhdUR4B2mQKBgDq04Id8TIxvSpOLoDaMGq3KihQlwdZ8Ahwo/SDh1GqjsmQHQMsQ\n"
-            "ZERKg0Qpe/KqiqoKuovJRxtNKjsI170hF1pgUgF4n1lZF2F+CPp6Pr4yRn4ArVY4\n"
-            "rjmLfSit/j9yXC7XYviM/DV9ivBqZyhvE7bKvh8cKCLdBXITD5MzndYdAoGBAJmi\n"
-            "VKxhdyZ9XsxQByMzHNKeBMQR4w0fwOrWystLweKmcPzh2cAJAcPNK4HAnWRicNIK\n"
-            "dupGWJ/Sm3S2duqalqMUitQ1vy9ZeU568zTslf6r+/ofWG/02x77SPEQz5n8Jo1K\n"
-            "SjOqAyTHgC5FYSlSC+oSX0H2TE3iwxb4lB1kDruhAoGBAJK5VV/SYvWHVexDUEIn\n"
-            "6D5Low7Rz4Kk39aG6pKTULCkPXu50Jd8SNXKbtNr1gGHkL/TSDB5pKE8Uz6j+ZSY\n"
-            "69VEWnjBhFkxxMvJ3TVad6cEgMDayz3+SwwigqOFKdVYX1EOsiQiucxG6iAd9TmD\n"
-            "ube4pEoz4ArnJipRo5SZWw80\n"
-            "-----END PRIVATE KEY-----\n"
-        )
+        # 1. 원본 키 데이터 (이 텍스트는 절대 수정하지 마세요)
+        raw_key = """-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC7oRsy7oHR0ZmI
+43rGFZ7ugH/oFnPRwgzIBHjWZlj6nIaJQ52TiKeL+O13amFKSoVuqfxMJ4guY4xM
+9xRfxSkXgRmnJtyfZXMFiVGARIwz3XIHGYHMbVZKCl/8vcx9I7QOiKcA8Vz25JBD
+65bPLSbzC1TMb7mV+L71TqpO2bbaIrX9dKdiQDmROO1mTI4gFMJbtJJN1szBvzbI
+xLnAr0ALFVhy5rMI2AIQFb4evnhNK+WOnw7hoABudbgqqHA3t8oE5FHyx5nZPeDV
+GLYJ4iF5G7CsIZCsriUUvBTu3KP5Cx9gPLrK86SfVuuuV7yQolzDtl0sNnRfGP91
+2lkoC1CvAgMBAAECggEADmW2MBTOylpdKnywwuVi0iXzFUyFFknfxYiuUF6pzOUu
+NPcxbreJimXkrDPyA4uErJwHkOe8Uo7vSPKb/MiktrnVzZaKTwLaWMjo2OupnyCK
+wOe1/DPsRKHXgWMmVKM6NvPzw1CXU8Hwc1MZueEFlZhqKTEY2lysI9JQTYegOSGs
+hEvAbw6k4cJ2pGBOXwfJorBSOV2HCHK3oKp/X8J283UT6GBfI76Ckpzp/tKlvtPn
+nerjxKllDXPX4YLvyzw+ZS5DP5IIEFELJKFIBc9QqXN9poqAMx54MT/UP/FgB4/3y
+nbjuMyNICoCdT4ejRsNLtoK6D0SBoxG50IxC47x/rOQKBgQD2+tPMzpoGs8P3Symc
+v04n2srl/+ayTNo9Hhgnr6EFwOmc916YlmNE5tl9umPJSONARxFctus0bVciIilQ
+LQkYaiqPJUBrJzjeiCzWvUR4C+i8HcQ63WYFvzshWI7+mMJUIdEhfZjF4yZjR6z1
+jVzhLarGF9lVHIAqeOlTgFy2hwKBgQDCe1+LzwtpiyHPiRsDq5VM+WkYqGTygTn8
+M3QNzHEg0KWvg2zGMxQPV9/z4EUsFi2h8nnSnQUxXVp8VyoTRbAKqCam5ffB78jQ
+93vL3Ifl5sZp8/KL+4uPXszuqZa109D4+4wVstsbK3CDCzY/WSuDszlwoSamLcYE
+NhdUR4B2mQKBgDq04Id8TIxvSpOLoDaMGq3KihQlwdZ8Ahwo/SDh1GqjsmQHQMsQ
+ZERKg0Qpe/KqiqoKuovJRxtNKjsI170hF1pgUgF4n1lZF2F+CPp6Pr4yRn4ArVY4
+rjmLfSit/j9yXC7XYviM/DV9ivBqZyhvE7bKvh8cKCLdBXITD5MzndYdAoGBAJmi
+VKxhdyZ9XsxQByMzHNKeBMQR4w0fwOrWystLweKmcPzh2cAJAcPNK4HAnWRicNIK
+dupGWJ/Sm3S2duqalqMUitQ1vy9ZeU568zTslf6r+/ofWG/02x77SPEQz5n8Jo1K
+SjOqAyTHgC5FYSlSC+oSX0H2TE3iwxb4lB1kDruhAoGBAJK5VV/SYvWHVexDUEIn
+6D5Low7Rz4Kk39aG6pKTULCkPXu50Jd8SNXKbtNr1gGHkL/TSDB5pKE8Uz6j+ZSY
+69VEWnjBhFkxxMvJ3TVad6cEgMDayz3+SwwigqOFKdVYX1EOsiQiucxG6iAd9TmD
+ube4pEoz4ArnJipRo5SZWw80
+-----END PRIVATE KEY-----"""
+
+        # 2. 키 세척 로직 (여기가 핵심입니다)
+        # 문자열 안의 실제 데이터만 추출하고 줄바꿈 기호를 시스템이 인식하는 \n으로 강제 변환합니다.
+        cleaned_key = raw_key.replace("\\n", "\n").strip()
         
         service_account_info = {
             "type": "service_account",
             "project_id": "round-booking-494300-s3",
             "private_key_id": "795d62b1e25929e3565c56671d19d8a276e559e3",
-            "private_key": raw_key,
+            "private_key": cleaned_key,
             "client_email": "id-298@round-booking-494300-s3.iam.gserviceaccount.com",
             "client_id": "114249893845931311645",
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
