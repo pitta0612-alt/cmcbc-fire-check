@@ -2,23 +2,20 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
-from openpyxl import load_workbook, Workbook
-from PIL import Image
 import gspread
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 import io
+from PIL import Image
 
-# [설정] 파일 및 폴더 정보
-EXCEL_FILE = "fire_inspection_log.xlsx"
+# [설정]
 SHEET_NAME = "부천성모병원_소방점검_데이터"
 FOLDER_ID = "1HHGdjoQFtI2Z1LbLpXh1cF8pz6-gQHir"
 
-# 1. 새 구글 키 데이터 (보안 및 버전 호환성을 위해 리스트 조립 방식을 사용합니다)
 def get_google_creds():
-    # 새 private_key 데이터 조각들
-    key_parts = [
+    # 새로 발급받으신 키를 64글자씩 정밀하게 나누어 데이터 훼손을 방지합니다.
+    key_data = [
         "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDTCcDPRBVAkK3x",
         "du/xc21oJZhdJQvcdLywzLg50l5yv0iATK5+XFrp+5ZLaGFLKRVXARhkok9sd1az",
         "uycJHUh7Uh7tvTgmuwSAJyh3oThwtiuTcUcXGQcWLcfOzTj6E5EUsIm0JihICDbb",
@@ -47,14 +44,14 @@ def get_google_creds():
         "ube4pEoz4ArnJipRo5SZWw80"
     ]
     
-    # 헤더와 푸터를 포함하여 줄바꿈(\n)으로 합칩니다.
-    full_private_key = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(key_parts) + "\n-----END PRIVATE KEY-----\n"
+    # 쪼개진 데이터를 구글 표준 줄바꿈 형식으로 재조립합니다.
+    full_key = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(key_data) + "\n-----END PRIVATE KEY-----\n"
     
-    info = {
+    service_info = {
         "type": "service_account",
         "project_id": "round-booking-494300-s3",
         "private_key_id": "717037f3d1302a12c343e15cf9a0516cfcaea968",
-        "private_key": full_private_key,
+        "private_key": full_key,
         "client_email": "id-298@round-booking-494300-s3.iam.gserviceaccount.com",
         "client_id": "114249893845931311645",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -63,12 +60,11 @@ def get_google_creds():
         "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-298%40round-booking-494300-s3.iam.gserviceaccount.com"
     }
     
-    return Credentials.from_service_account_info(info, scopes=[
+    return Credentials.from_service_account_info(service_info, scopes=[
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ])
 
-# 2. 구글 드라이브 및 시트 연결 함수
 def upload_to_drive(file_data, file_name):
     try:
         service = build('drive', 'v3', credentials=get_google_creds())
@@ -90,8 +86,8 @@ def connect_google_sheet():
         st.error(f"구글 시트 연결 에러: {e}")
         return None
 
-# --- 앱 UI ---
-st.set_page_config(page_title="부천성모병원 소방점검 V6.5", layout="wide")
+# --- UI 및 비즈니스 로직 ---
+st.set_page_config(page_title="부천성모병원 소방점검", layout="wide")
 
 building_data = {
     "성모관(A동)": ["B1F", "1F", "2F", "3F", "4F", "5F", "6F", "7F", "8F", "9F", "10F", "11F"],
@@ -103,7 +99,7 @@ building_data = {
 }
 total_items = ["소화기구", "소화가스구역", "옥내소화전설비", "스프링클러설비", "자탐설비(감지기)", "유도등설비", "비상조명등설비", "완강기", "구조대", "방열복", "공기호흡기", "특피제연설비", "상가제연설비", "비상콘센트", "무선통신설비"]
 
-st.title("🏥 소방시설 점검 기록 시스템")
+st.title("🏥 소방시설 점검 기록 시스템 (V6.8)")
 
 st.sidebar.header("📋 점검 기본 정보")
 inspector = st.sidebar.text_input("점검자", value="이용민")
@@ -111,7 +107,7 @@ check_date = st.sidebar.date_input("점검 일자", datetime.now())
 selected_bldg = st.sidebar.selectbox("건물 선택", list(building_data.keys()))
 selected_floor = st.sidebar.selectbox("층수 선택", building_data[selected_bldg])
 
-st.header(f"🔍 {selected_bldg} {selected_floor} 상태 체크")
+st.header(f"🔍 {selected_bldg} {selected_floor} 시설물 상태")
 results = {}
 cols = st.columns(3)
 for idx, item in enumerate(total_items):
@@ -122,28 +118,28 @@ st.divider()
 
 col_img, col_txt = st.columns([1, 1])
 with col_img:
-    st.header("📸 현장 사진")
-    show_camera = st.checkbox("📷 사진 촬영 기능 켜기")
-    img_file = st.camera_input("불량 항목 사진 촬영") if show_camera else None
+    st.header("📸 사진 촬영")
+    show_camera = st.checkbox("📷 카메라 켜기")
+    img_file = st.camera_input("점검 사진 촬영") if show_camera else None
 with col_txt:
     st.header("📝 지적 내역")
-    issue_detail = st.text_area("상세 불량 사유", height=150)
+    issue_detail = st.text_area("불량 사유 및 비고", height=150)
 
-if st.button("📊 점검 결과 저장 및 전송", use_container_width=True):
+if st.button("📊 데이터 전송 및 저장", use_container_width=True):
     image_url = ""
     if img_file:
-        with st.spinner('사진 업로드 중...'):
-            file_name = f"{check_date.strftime('%Y%m%d')}_{selected_bldg}_{selected_floor}_{inspector}.jpg"
+        with st.spinner('구글 드라이브에 사진 전송 중...'):
+            file_name = f"{check_date}_{selected_bldg}_{selected_floor}_{inspector}.jpg"
             image_url = upload_to_drive(img_file.getvalue(), file_name)
     
-    photo_formula = f'=IMAGE("{image_url}")' if image_url else "사진없음"
-    row_to_add = [check_date.strftime("%Y-%m-%d"), inspector, f"{selected_bldg} {selected_floor}"] + list(results.values()) + [issue_detail, photo_formula]
+    photo_val = f'=IMAGE("{image_url}")' if image_url else "사진없음"
+    row = [check_date.strftime("%Y-%m-%d"), inspector, f"{selected_bldg} {selected_floor}"] + list(results.values()) + [issue_detail, photo_val]
 
     sheet = connect_google_sheet()
     if sheet:
         try:
-            sheet.append_row(row_to_add, value_input_option='USER_ENTERED')
-            st.success("✅ 전송 성공!")
+            sheet.append_row(row, value_input_option='USER_ENTERED')
+            st.success("✅ 구글 스프레드시트 전송 성공!")
             st.balloons()
         except Exception as e:
             st.error(f"❌ 전송 실패: {e}")
