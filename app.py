@@ -9,25 +9,34 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 import io
+import json
 
-# [설정] 파일 및 폴더 정보
-EXCEL_FILE = "fire_inspection_log.xlsx"
+# [설정] 정보
 SHEET_NAME = "부천성모병원_소방점검_데이터"
 FOLDER_ID = "1HHGdjoQFtI2Z1LbLpXh1cF8pz6-gQHir"
-JSON_FILE = "service_account.json"  # 같은 폴더에 이 파일이 있어야 합니다.
+JSON_FILE = "service_account.json"
 
-# 1. 인증 정보 가져오기 (JSON 파일을 직접 읽음)
+# 1. 인증 정보 가져오기 (JSON 파일을 읽어 유효성 검사 추가)
 def get_creds():
     try:
-        return Credentials.from_service_account_file(
-            JSON_FILE,
+        # 파일이 존재하는지 확인
+        if not os.path.exists(JSON_FILE):
+            st.error(f"파일이 없습니다: {JSON_FILE}")
+            return None
+        
+        # 파일 내용을 읽어와서 파이썬 딕셔너리로 변환
+        with open(JSON_FILE, 'r') as f:
+            info = json.load(f)
+            
+        return Credentials.from_service_account_info(
+            info,
             scopes=[
                 "https://www.googleapis.com/auth/spreadsheets",
                 "https://www.googleapis.com/auth/drive"
             ]
         )
     except Exception as e:
-        st.error(f"인증 파일(JSON)을 읽을 수 없습니다: {e}")
+        st.error(f"인증 파일 처리 중 오류: {e}")
         return None
 
 # 2. 구글 드라이브 사진 업로드 함수
@@ -58,7 +67,7 @@ def connect_google_sheet():
         return None
 
 # --- 앱 UI 부분 ---
-st.set_page_config(page_title="부천성모병원 소방점검 V6.3", layout="wide")
+st.set_page_config(page_title="부천성모병원 소방점검 V6.4", layout="wide")
 
 building_data = {
     "성모관(A동)": ["B1F", "1F", "2F", "3F", "4F", "5F", "6F", "7F", "8F", "9F", "10F", "11F"],
@@ -70,13 +79,7 @@ building_data = {
 }
 total_items = ["소화기구", "소화가스구역", "옥내소화전설비", "스프링클러설비", "자탐설비(감지기)", "유도등설비", "비상조명등설비", "완강기", "구조대", "방열복", "공기호흡기", "특피제연설비", "상가제연설비", "비상콘센트", "무선통신설비"]
 
-try:
-    logo_img = Image.open("logo.png")
-    col_logo, col_title = st.columns([1, 6])
-    with col_logo: st.image(logo_img, width=150)
-    with col_title: st.markdown("<h1 style='margin-top: 15px;'>소방시설 점검 시스템</h1>", unsafe_allow_html=True)
-except:
-    st.title("🏥 소방시설 점검 시스템 (V6.3)")
+st.title("🏥 소방시설 점검 기록 시스템")
 
 st.sidebar.header("📋 점검 기본 정보")
 inspector = st.sidebar.text_input("점검자", value="이용민")
@@ -117,7 +120,6 @@ if st.button("📊 점검 결과 저장 및 전송", use_container_width=True):
     row_to_add.append(issue_detail)
     row_to_add.append(photo_formula)
 
-    # 구글 시트 전송
     sheet = connect_google_sheet()
     if sheet:
         try:
