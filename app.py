@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 import os
 from openpyxl import load_workbook, Workbook
+from PIL import Image
 
 # 엑셀 파일 이름 설정 (로컬 백업용)
 EXCEL_FILE = "fire_inspection_log.xlsx"
@@ -25,9 +26,22 @@ total_items = [
     "상가제연설비", "비상콘센트", "무선통신설비"
 ]
 
-# 앱 설정
+# 앱 페이지 설정
 st.set_page_config(page_title="부천성모병원 소방점검", layout="wide")
-st.title("🏥 소방시설 정밀 점검 시스템 (V4.0)")
+
+# --- 수정된 상단 로고 및 제목 부분 ---
+try:
+    # logo.png 파일이 같은 경로에 있어야 합니다.
+    logo_img = Image.open("logo.png")
+    col_logo, col_title = st.columns([1, 6])
+    
+    with col_logo:
+        st.image(logo_img, width=100)
+    with col_title:
+        st.markdown("<h1 style='margin-top: 15px;'>소방시설 정밀 점검 시스템 (V4.2)</h1>", unsafe_allow_html=True)
+except Exception:
+    # 이미지 로딩 실패 시 기존 제목 표시
+    st.title("🏥 소방시설 정밀 점검 시스템 (V4.2)")
 
 # 사이드바 - 점검 기본 정보
 st.sidebar.header("📋 점검 기본 정보")
@@ -57,21 +71,17 @@ for idx, item in enumerate(total_items):
 
 st.divider()
 
-# --- 수정된 기능: 후면 카메라 권장 및 선택형 활성화 ---
+# --- 선택형 카메라 활성화 및 지적 내역 ---
 col_img, col_txt = st.columns([1, 1])
 
 with col_img:
     st.header("📸 현장 사진 첨부")
-    
-    # 안내 문구 추가
-    st.caption("💡 스마트폰 접속 시 '후면 카메라'를 사용해 주세요.")
-    
-    show_camera = st.checkbox("📷 사진 촬영 기능 켜기 (후면 권장)")
+    # 체크박스를 선택할 때만 카메라 기능을 활성화합니다.
+    show_camera = st.checkbox("📷 사진 촬영 기능 켜기")
     
     img_file = None
     if show_camera:
-        # Streamlit의 camera_input은 브라우저의 마지막 설정을 기억하는 경우가 많습니다.
-        # 아래는 표준 입력 방식이며, 모바일 브라우저에서 '카메라 전환' 버튼이 보일 것입니다.
+        # 스마트폰 브라우저에서 후면 카메라가 안 뜬다면 전환 버튼을 눌러주세요.
         img_file = st.camera_input("불량 항목 사진 촬영")
     else:
         st.write("사진 촬영이 필요하면 위 체크박스를 선택하세요.")
@@ -86,9 +96,9 @@ with col_txt:
 
 st.divider()
 
-# 저장 버튼
+# 저장 버튼 로직
 if st.button("📊 점검 결과 저장 및 데이터 전송", use_container_width=True):
-    # 저장 데이터 구성
+    # 데이터 정리
     new_data = {
         "점검일자": check_date.strftime("%Y-%m-%d"),
         "점검자": inspector,
@@ -96,10 +106,9 @@ if st.button("📊 점검 결과 저장 및 데이터 전송", use_container_wid
     }
     new_data.update(results)
     new_data["지적내역"] = issue_detail
-    # 사진 여부 기록 (나중에 사진을 구글 드라이브 등에 올리는 로직을 위해)
     new_data["사진첨부"] = "Y" if img_file else "N"
     
-    # 1. 로컬 엑셀 저장 (백업용)
+    # 엑셀 파일 처리 로직 (서버 내 로컬 백업)
     if not os.path.exists(EXCEL_FILE):
         wb = Workbook()
         ws = wb.active
@@ -111,10 +120,7 @@ if st.button("📊 점검 결과 저장 및 데이터 전송", use_container_wid
     ws.append(list(new_data.values()))
     wb.save(EXCEL_FILE)
     
-    # 2. 구글 시트 연동 안내 (다음 단계)
-    st.success(f"✅ {full_location} 점검 데이터가 로컬에 저장되었습니다!")
+    st.success(f"✅ {full_location} 점검 데이터가 저장되었습니다!")
     if img_file:
-        st.write("📷 사진이 함께 캡처되었습니다.")
-    
-    st.warning("⚠️ 외부에서 접속 중이라면 현재 데이터는 서버 임시 폴더에 저장됩니다. 안전한 보관을 위해 구글 시트 연동을 완료해 주세요.")
+        st.write("📷 사진 데이터가 함께 기록되었습니다.")
     st.balloons()
